@@ -1,0 +1,181 @@
+﻿@model List<POS_System.Models.ViewModels.SaleHistoryDto>
+@{
+    ViewData["Title"] = "Sales History";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="bi bi-clock-history"></i> Sales History</h4>
+    <a asp-action="Index" class="btn btn-success btn-sm">
+        <i class="bi bi-cart3"></i> Go to POS
+    </a>
+</div>
+
+<!-- Filters -->
+<form method="get" class="row g-2 mb-3 align-items-end">
+    <div class="col-auto">
+        <label class="form-label small">Status</label>
+        <select name="status" class="form-select form-select-sm">
+            <option value="">All</option>
+            <option value="Completed" selected="@(ViewBag.Status == "Completed")">Completed</option>
+            <option value="Voided" selected="@(ViewBag.Status == "Voided")">Voided</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <label class="form-label small">From</label>
+        <input type="date" name="from" value="@ViewBag.From" class="form-control form-control-sm">
+    </div>
+    <div class="col-auto">
+        <label class="form-label small">To</label>
+        <input type="date" name="to" value="@ViewBag.To" class="form-control form-control-sm">
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary btn-sm">Filter</button>
+        <a asp-action="History" class="btn btn-outline-secondary btn-sm">Reset</a>
+    </div>
+</form>
+
+<!-- Table -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Subtotal</th>
+                <th>Discount</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr><td colspan="8" class="text-center text-muted">No sales found.</td></tr>
+            }
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td>@s.SaleId</td>
+                    <td>@s.SaleDate.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt")</td>
+                    <td>₱@s.SubTotal.ToString("N2")</td>
+                    <td class="text-danger">-₱@s.DiscountAmt.ToString("N2")</td>
+                    <td class="fw-bold">₱@s.TotalAmount.ToString("N2")</td>
+                    <td>@s.PaymentMode</td>
+                    <td>
+                        <span class="badge @(s.SaleStatus == "Completed" ? "bg-success" : "bg-secondary")">
+                            @s.SaleStatus
+                        </span>
+                    </td>
+                    <td class="d-flex gap-1">
+                        <button class="btn btn-outline-primary btn-sm"
+                                onclick="viewDetail(@s.SaleId)">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        @if (isAdmin && s.SaleStatus == "Completed")
+                        {
+                            <button class="btn btn-outline-danger btn-sm"
+                                    onclick="voidSale(@s.SaleId)">
+                                <i class="bi bi-x-circle"></i> Void
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+@if (ViewBag.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination pagination-sm">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.Page ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="History"
+                       asp-route-page="@i"
+                       asp-route-status="@ViewBag.Status"
+                       asp-route-from="@ViewBag.From"
+                       asp-route-to="@ViewBag.To">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+<!-- Detail Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sale Detail</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailBody" style="font-family:monospace;"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-outline-secondary" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Print
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function viewDetail(id) {
+            const res  = await fetch(`/Sales/Detail/${id}`);
+            const r    = await res.json();
+            const lines = r.lines.map(l =>
+                `<tr>
+                    <td>${l.productName}</td>
+                    <td class="text-center">${l.qty}</td>
+                    <td class="text-end">₱${l.price.toFixed(2)}</td>
+                    <td class="text-end">₱${l.lineTotal.toFixed(2)}</td>
+                 </tr>`).join('');
+
+            document.getElementById('detailBody').innerHTML = `
+                <div class="text-center mb-2">
+                    <strong>Sale #${r.saleId}</strong><br>
+                    <small>${new Date(r.saleDate).toLocaleString()}</small>
+                </div>
+                <table class="table table-sm">
+                    <thead><tr>
+                        <th>Item</th><th class="text-center">Qty</th>
+                        <th class="text-end">Price</th><th class="text-end">Total</th>
+                    </tr></thead>
+                    <tbody>${lines}</tbody>
+                </table>
+                <hr>
+                <div class="d-flex justify-content-between"><span>Subtotal</span><strong>₱${r.subTotal.toFixed(2)}</strong></div>
+                <div class="d-flex justify-content-between text-danger">
+                    <span>Discount (${r.discountPct}%)</span><strong>-₱${r.discountAmt.toFixed(2)}</strong>
+                </div>
+                <div class="d-flex justify-content-between fw-bold fs-6 border-top pt-1">
+                    <span>TOTAL</span><span>₱${r.totalAmount.toFixed(2)}</span>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                    <span>Payment (${r.paymentMode})</span>
+                    <strong>₱${r.amountTendered.toFixed(2)}</strong>
+                </div>
+                ${r.changeGiven > 0 ? `<div class="d-flex justify-content-between text-primary">
+                    <span>Change</span><strong>₱${r.changeGiven.toFixed(2)}</strong></div>` : ''}`;
+
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
+        }
+
+        async function voidSale(id) {
+            if (!confirm(`Void Sale #${id}? This will restore stock.`)) return;
+            const res  = await fetch(`/Sales/Void/${id}`, { method: 'POST' });
+            const data = await res.json();
+            if (res.ok) { alert(data.message); location.reload(); }
+            else        { alert(data.error); }
+        }
+    </script>
+}

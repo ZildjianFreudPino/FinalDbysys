@@ -1,0 +1,333 @@
+﻿@model POS_System.Models.ViewModels.SalesViewModel
+@{
+    ViewData["Title"] = "Cashier POS";
+}
+
+<div class="d-flex gap-3" style="height:calc(100vh - 120px);">
+
+    <!-- ── LEFT: Product Grid ── -->
+    <div class="d-flex flex-column" style="flex:1; min-width:0;">
+        <div class="input-group mb-2">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input id="searchInput" type="text" class="form-control" placeholder="Search products...">
+        </div>
+        <div id="productGrid" class="row g-2 overflow-auto flex-grow-1 align-content-start">
+            @foreach (var p in Model.Products)
+            {
+                <div class="col-6 col-md-4 col-lg-3 product-card-col"
+                     data-name="@p.Name.ToLower()">
+                    <div class="card h-100 shadow-sm product-card"
+                         style="cursor:pointer;"
+                         data-id="@p.Id"
+                         data-name="@p.Name"
+                         data-price="@p.Price"
+                         data-stock="@p.Stock">
+                        @if (!string.IsNullOrEmpty(p.ImagePath))
+                        {
+                            <img src="@p.ImagePath" class="card-img-top"
+                                 style="height:90px;object-fit:cover;" alt="@p.Name">
+                        }
+                        else
+                        {
+                            <div class="bg-secondary d-flex align-items-center justify-content-center"
+                                 style="height:90px;">
+                                <i class="bi bi-box-seam text-white fs-2"></i>
+                            </div>
+                        }
+                        <div class="card-body p-2">
+                            <div class="fw-semibold small text-truncate">@p.Name</div>
+                            <div class="text-success fw-bold">₱@p.Price.ToString("N2")</div>
+                            <div class="text-muted" style="font-size:.75rem;">Stock: @p.Stock</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ── RIGHT: Cart ── -->
+    <div class="d-flex flex-column bg-white border rounded shadow-sm p-3"
+         style="width:360px; min-width:360px;">
+        <h5 class="mb-2"><i class="bi bi-cart3"></i> Cart</h5>
+
+        <div id="cartItems" class="flex-grow-1 overflow-auto mb-2" style="max-height:340px;">
+            <p class="text-muted text-center mt-4" id="emptyCart">No items yet.</p>
+        </div>
+
+        <hr class="my-1">
+
+        <!-- Discount -->
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <label class="small mb-0">Discount %</label>
+            <input id="discountPct" type="number" min="0" max="100" value="0"
+                   class="form-control form-control-sm" style="width:80px;">
+        </div>
+
+        <table class="table table-sm mb-1">
+            <tr><td>Subtotal</td><td class="text-end fw-bold" id="subTotalDisplay">₱0.00</td></tr>
+            <tr><td>Discount</td><td class="text-end text-danger" id="discountDisplay">-₱0.00</td></tr>
+            <tr class="table-success">
+                <td class="fw-bold">TOTAL</td>
+                <td class="text-end fw-bold fs-5" id="totalDisplay">₱0.00</td>
+            </tr>
+        </table>
+
+        <!-- Payment Mode -->
+        <select id="paymentMode" class="form-select form-select-sm mb-2">
+            @foreach (var m in Model.PaymentModes)
+            {
+                <option value="@m.ModeId">@m.ModeName</option>
+            }
+        </select>
+
+        <!-- Amount Tendered (cash only) -->
+        <div id="cashRow" class="d-flex align-items-center gap-2 mb-2">
+            <label class="small mb-0 text-nowrap">Amount Tendered</label>
+            <input id="amountTendered" type="number" min="0" step="0.01" value="0"
+                   class="form-control form-control-sm">
+        </div>
+        <div id="changeRow" class="text-end text-primary small mb-2 d-none">
+            Change: <strong id="changeDisplay">₱0.00</strong>
+        </div>
+
+        <button id="btnCharge" class="btn btn-success w-100 fw-bold">
+            <i class="bi bi-lightning-charge-fill"></i> CHARGE
+        </button>
+        <button id="btnClear" class="btn btn-outline-danger btn-sm w-100 mt-1">
+            <i class="bi bi-x-circle"></i> Clear Cart
+        </button>
+    </div>
+</div>
+
+<!-- ── Receipt Modal ── -->
+<div class="modal fade" id="receiptModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-receipt"></i> Sale Complete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="receiptBody" style="font-family:monospace;"></div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Print
+                </button>
+                <button class="btn btn-success" data-bs-dismiss="modal">New Sale</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ── Cart State ──────────────────────────────────────────────
+        let cart = {};
+
+        // ── Add to Cart ─────────────────────────────────────────────
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const id    = parseInt(card.dataset.id);
+                const name  = card.dataset.name;
+                const price = parseFloat(card.dataset.price);
+                const stock = parseInt(card.dataset.stock);
+
+                if (cart[id]) {
+                    if (cart[id].qty >= stock) {
+                        alert(`Max stock reached for "${name}".`);
+                        return;
+                    }
+                    cart[id].qty++;
+                } else {
+                    cart[id] = { id, name, price, stock, qty: 1 };
+                }
+                renderCart();
+            });
+        });
+
+        // ── Search ───────────────────────────────────────────────────
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('.product-card-col').forEach(col => {
+                col.style.display = col.dataset.name.includes(q) ? '' : 'none';
+            });
+        });
+
+        // ── Payment Mode Toggle ──────────────────────────────────────
+        const paymentMode    = document.getElementById('paymentMode');
+        const cashRow        = document.getElementById('cashRow');
+        const changeRow      = document.getElementById('changeRow');
+        const amountTendered = document.getElementById('amountTendered');
+        const changeDisplay  = document.getElementById('changeDisplay');
+
+        paymentMode.addEventListener('change', () => {
+            const isCash = paymentMode.value === '1';
+            cashRow.classList.toggle('d-none', !isCash);
+            changeRow.classList.toggle('d-none', !isCash);
+            updateTotals();
+        });
+
+        amountTendered.addEventListener('input', updateTotals);
+        document.getElementById('discountPct').addEventListener('input', updateTotals);
+
+        // ── Render Cart ──────────────────────────────────────────────
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const items     = Object.values(cart);
+
+            if (items.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center mt-4">No items yet.</p>';
+                updateTotals();
+                return;
+            }
+
+            container.innerHTML = items.map(item => `
+                <div class="d-flex align-items-center gap-2 mb-1 border-bottom pb-1">
+                    <div class="flex-grow-1">
+                        <div class="small fw-semibold">${item.name}</div>
+                        <div class="text-muted" style="font-size:.75rem;">₱${item.price.toFixed(2)} each</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <button class="btn btn-outline-secondary btn-sm px-1 py-0"
+                                onclick="changeQty(${item.id}, -1)">−</button>
+                        <span class="px-1">${item.qty}</span>
+                        <button class="btn btn-outline-secondary btn-sm px-1 py-0"
+                                onclick="changeQty(${item.id}, 1)">+</button>
+                    </div>
+                    <div class="text-end small fw-bold" style="min-width:64px;">
+                        ₱${(item.price * item.qty).toFixed(2)}
+                    </div>
+                    <button class="btn btn-link text-danger p-0"
+                            onclick="removeItem(${item.id})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>`).join('');
+
+            updateTotals();
+        }
+
+        function changeQty(id, delta) {
+            if (!cart[id]) return;
+            cart[id].qty += delta;
+            if (cart[id].qty > cart[id].stock) {
+                cart[id].qty = cart[id].stock;
+                alert('Max stock reached.');
+            }
+            if (cart[id].qty <= 0) delete cart[id];
+            renderCart();
+        }
+
+        function removeItem(id) { delete cart[id]; renderCart(); }
+
+        document.getElementById('btnClear').addEventListener('click', () => {
+            cart = {}; renderCart();
+        });
+
+        // ── Totals ───────────────────────────────────────────────────
+        function updateTotals() {
+            const items    = Object.values(cart);
+            const subTotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+            const pct      = Math.max(0, Math.min(100, parseFloat(document.getElementById('discountPct').value) || 0));
+            const discAmt  = subTotal * pct / 100;
+            const total    = subTotal - discAmt;
+            const tendered = parseFloat(amountTendered.value) || 0;
+            const change   = Math.max(0, tendered - total);
+
+            document.getElementById('subTotalDisplay').textContent = '₱' + subTotal.toFixed(2);
+            document.getElementById('discountDisplay').textContent = '-₱' + discAmt.toFixed(2);
+            document.getElementById('totalDisplay').textContent    = '₱' + total.toFixed(2);
+            if (paymentMode.value === '1')
+                changeDisplay.textContent = '₱' + change.toFixed(2);
+        }
+
+        // ── Charge ───────────────────────────────────────────────────
+        document.getElementById('btnCharge').addEventListener('click', async () => {
+            const items = Object.values(cart);
+            if (items.length === 0) { alert('Cart is empty.'); return; }
+
+            const pct      = parseFloat(document.getElementById('discountPct').value) || 0;
+            const modeId   = parseInt(paymentMode.value);
+            const tendered = parseFloat(amountTendered.value) || 0;
+
+            const payload = {
+                items:          items.map(i => ({ productId: i.id, quantity: i.qty })),
+                discountPct:    pct,
+                modeId:         modeId,
+                amountTendered: tendered
+            };
+
+            try {
+                const res  = await fetch('/Sales/Process', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) { alert(data.error || 'Error processing sale.'); return; }
+
+                // Show receipt modal
+                showReceipt(data);
+
+                // Clear the cart
+                cart = {};
+                renderCart();
+
+                // ── Refresh page after receipt modal is closed ──
+                // This updates the product stock counts from the server.
+                // { once: true } ensures this only fires one time per sale.
+                document.getElementById('receiptModal').addEventListener('hidden.bs.modal', () => {
+                    location.reload();
+                }, { once: true });
+
+            } catch { alert('Network error.'); }
+        });
+
+        // ── Receipt ──────────────────────────────────────────────────
+        function showReceipt(r) {
+            const lines = r.lines.map(l =>
+                `<tr>
+                    <td>${l.productName}</td>
+                    <td class="text-center">${l.qty}</td>
+                    <td class="text-end">₱${l.price.toFixed(2)}</td>
+                    <td class="text-end">₱${l.lineTotal.toFixed(2)}</td>
+                 </tr>`).join('');
+
+            document.getElementById('receiptBody').innerHTML = `
+                <div class="text-center mb-2">
+                    <strong>POS SYSTEM</strong><br>
+                    <small>Sale #${r.saleId} &nbsp;|&nbsp; ${new Date(r.saleDate).toLocaleString()}</small>
+                </div>
+                <table class="table table-sm table-borderless">
+                    <thead><tr>
+                        <th>Item</th><th class="text-center">Qty</th>
+                        <th class="text-end">Price</th><th class="text-end">Total</th>
+                    </tr></thead>
+                    <tbody>${lines}</tbody>
+                </table>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <span>Subtotal</span><strong>₱${r.subTotal.toFixed(2)}</strong>
+                </div>
+                <div class="d-flex justify-content-between text-danger">
+                    <span>Discount (${r.discountPct}%)</span><strong>-₱${r.discountAmt.toFixed(2)}</strong>
+                </div>
+                <div class="d-flex justify-content-between fs-5 fw-bold text-success border-top pt-1">
+                    <span>TOTAL</span><span>₱${r.totalAmount.toFixed(2)}</span>
+                </div>
+                <div class="d-flex justify-content-between mt-1">
+                    <span>Payment (${r.paymentMode})</span><strong>₱${r.amountTendered.toFixed(2)}</strong>
+                </div>
+                ${r.changeGiven > 0
+                    ? `<div class="d-flex justify-content-between text-primary">
+                           <span>Change</span><strong>₱${r.changeGiven.toFixed(2)}</strong>
+                       </div>`
+                    : ''}
+                <div class="text-center mt-3 text-muted small">Thank you for your purchase!</div>`;
+
+            new bootstrap.Modal(document.getElementById('receiptModal')).show();
+        }
+
+        // ── Init ─────────────────────────────────────────────────────
+        updateTotals();
+        paymentMode.dispatchEvent(new Event('change'));
+    </script>
+}

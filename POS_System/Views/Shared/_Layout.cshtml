@@ -35,6 +35,17 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Cashiers" asp-action="Index">Cashiers</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Sales" asp-action="Index">
+                                <i class="bi bi-cash-register"></i> POS
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Sales" asp-action="History">
+                                <i class="bi bi-clock-history"></i> Sales History
+                            </a>
+                        </li>
+
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
