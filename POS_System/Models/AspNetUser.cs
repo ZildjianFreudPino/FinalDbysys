@@ -23,10 +23,7 @@ public partial class AspNetUser : Microsoft.AspNetCore.Identity.IdentityUser
     public string? FullName { get; set; }
     public string? ProfileImage { get; set; }
 
-    public virtual ICollection<AspNetUserClaim> AspNetUserClaims { get; set; } = new List<AspNetUserClaim>();
-    public virtual ICollection<AspNetUserLogin> AspNetUserLogins { get; set; } = new List<AspNetUserLogin>();
-    public virtual ICollection<AspNetUserToken> AspNetUserTokens { get; set; } = new List<AspNetUserToken>();
-    public virtual ICollection<AspNetRole> Roles { get; set; } = new List<AspNetRole>();
+
 }
 
 //

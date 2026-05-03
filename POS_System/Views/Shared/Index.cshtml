@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - POS Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f9;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: #1a1a2e;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            z-index: 100;
+        }
+
+        .sidebar-brand {
+            padding: 20px 24px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            background: #16213e;
+            border-bottom: 1px solid #0f3460;
+            text-decoration: none;
+            display: block;
+        }
+
+            .sidebar-brand span {
+                color: #e94560;
+            }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 16px 0;
+            margin: 0;
+            flex: 1;
+        }
+
+            .sidebar-menu li a {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 24px;
+                color: #a0aec0;
+                text-decoration: none;
+                font-size: 14px;
+                transition: all 0.2s;
+            }
+
+                .sidebar-menu li a:hover,
+                .sidebar-menu li a.active {
+                    background: #0f3460;
+                    color: #fff;
+                    border-left: 3px solid #e94560;
+                }
+
+                .sidebar-menu li a .icon {
+                    font-size: 18px;
+                    width: 20px;
+                    text-align: center;
+                }
+
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #0f3460;
+        }
+
+            .sidebar-footer a {
+                color: #a0aec0;
+                text-decoration: none;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+                .sidebar-footer a:hover {
+                    color: #e94560;
+                }
+
+        .topbar {
+            height: 60px;
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 250px;
+            right: 0;
+            z-index: 99;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+            .topbar-user img {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid #e2e8f0;
+            }
+
+        .main-content {
+            margin-left: 250px;
+            padding-top: 60px;
+            min-height: 100vh;
+        }
+
+        .content-wrapper {
+            padding: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a class="sidebar-brand" href="#">POS <span>Admin</span></a>
+        <ul class="sidebar-menu">
+            <li>
+                <a asp-controller="Home" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                    <span class="icon">🏠</span> Dashboard
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Cashiers" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Cashiers" ? "active" : "")">
+                    <span class="icon">👤</span> Cashiers
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Categories" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Categories" ? "active" : "")">
+                    <span class="icon">📂</span> Categories
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Products" asp-action="Index"
+                   class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")">
+                    <span class="icon">📦</span> Products
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <form asp-area="Identity" asp-page="/Account/Logout"
+                  asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                  method="post">
+                <button type="submit" style="background:none;border:none;padding:0;cursor:pointer;">
+                    <a style="color:#a0aec0;text-decoration:none;display:flex;align-items:center;gap:10px;">
+                        <span>🚪</span> Logout
+                    </a>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="topbar-title">@ViewData["Title"]</div>
+        <div class="topbar-user">
+            <img src="/images/default-avatar.png" alt="admin" />
+            <span>@User.Identity.Name</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
