@@ -1,67 +1,96 @@
 ﻿@page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Register Cashier";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>@ViewData["Title"]</h1>
-
+<h1>Register Cashier</h1>
 <div class="row">
     <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl"
+              method="post" enctype="multipart/form-data">
+            <h2>Create a new cashier account.</h2>
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            @* Profile Image *@
+            <div class="text-center mb-4">
+                <img id="avatarPreview" src="~/images/default-avatar.png"
+                     class="rounded-circle mb-2"
+                     style="width:90px;height:90px;object-fit:cover;border:1px solid #ddd;" />
+                <div>
+                    <label for="Input_ProfileImage" class="btn btn-sm btn-outline-secondary">
+                        Upload Photo
+                    </label>
+                    <input asp-for="Input.ProfileImage" type="file"
+                           id="Input_ProfileImage" class="d-none"
+                           accept="image/*" onchange="previewImage(this)" />
+                    <span asp-validation-for="Input.ProfileImage" class="text-danger d-block"></span>
+                </div>
+            </div>
+
             <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <input asp-for="Input.UserName" class="form-control"
+                       aria-required="true" placeholder="johndoe" />
+                <label asp-for="Input.UserName">Username</label>
+                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.FullName" class="form-control"
+                       aria-required="true" placeholder="Juan dela Cruz" />
+                <label asp-for="Input.FullName">Full Name</label>
+                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control"
+                       autocomplete="email" aria-required="true"
+                       placeholder="name@example.com" />
                 <label asp-for="Input.Email">Email</label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
+
             <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <input asp-for="Input.Password" class="form-control"
+                       autocomplete="new-password" aria-required="true"
+                       placeholder="password" />
                 <label asp-for="Input.Password">Password</label>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
+
             <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <input asp-for="Input.ConfirmPassword" class="form-control"
+                       autocomplete="new-password" aria-required="true"
+                       placeholder="password" />
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+
+            <div class="d-flex gap-2">
+                <button id="registerSubmit" type="submit"
+                        class="w-100 btn btn-lg btn-primary">
+                    Register Cashier
+                </button>
+                <a asp-controller="Cashiers" asp-action="Index"
+                   class="w-100 btn btn-lg btn-outline-secondary">
+                    Cancel
+                </a>
+            </div>
         </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
-                }
-            }
-        </section>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById('avatarPreview').src = e.target.result;
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 }

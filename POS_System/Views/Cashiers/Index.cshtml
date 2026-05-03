@@ -1,5 +1,6 @@
-﻿@model IEnumerable<POS_System.Models.AspNetUser>
-@using POS_System.Models
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 @{
     ViewData["Title"] = "Manage Cashiers";
 }
@@ -25,15 +26,16 @@
     <tbody>
         @foreach (var user in Model)
         {
-            var image = string.IsNullOrEmpty(user.ProfileImage)
-            ? "/images/default-avatar.png"
-            : user.ProfileImage;
+            var claims = await UserManager.GetClaimsAsync(user);
+            var fullName = claims.FirstOrDefault(c => c.Type == "FullName")?.Value ?? "N/A";
+            var image = claims.FirstOrDefault(c => c.Type == "ProfileImage")?.Value ?? "/images/default-avatar.png";
+
             <tr>
                 <td>
                     <img src="@image" class="rounded-circle"
                          style="width:40px;height:40px;object-fit:cover;" />
                 </td>
-                <td>@user.FullName</td>
+                <td>@fullName</td>
                 <td>@user.UserName</td>
                 <td>@user.Email</td>
                 <td>

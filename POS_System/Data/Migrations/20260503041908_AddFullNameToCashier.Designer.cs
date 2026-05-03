@@ -12,8 +12,8 @@ using POS_System.Data;
 namespace POS_System.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260503014056_AddImagePathToProduct")]
-    partial class AddImagePathToProduct
+    [Migration("20260503041908_AddFullNameToCashier")]
+    partial class AddFullNameToCashier
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -263,6 +263,7 @@ namespace POS_System.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImagePath")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")

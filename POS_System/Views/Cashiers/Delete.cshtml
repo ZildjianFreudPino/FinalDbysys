@@ -1,0 +1,16 @@
+﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+@{
+    ViewData["Title"] = "Delete Cashier";
+}
+
+<h2>Delete Cashier</h2>
+
+<div class="alert alert-danger">
+    Are you sure you want to delete <strong>@Model.UserName</strong> (@Model.Email)?
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+</form>
