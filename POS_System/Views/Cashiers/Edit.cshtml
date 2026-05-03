@@ -5,19 +5,67 @@
 
 <h2>Edit Cashier</h2>
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 <div class="card" style="max-width:480px;">
     <div class="card-body">
-        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <form asp-action="Edit" asp-route-id="@Model.Id"
+              method="post" enctype="multipart/form-data">
+
+
+            <div class="text-center mb-4">
+                <img id="avatarPreview"
+                     src="@(string.IsNullOrEmpty(ViewBag.ProfileImage as string) ? "/images/default-avatar.png" : ViewBag.ProfileImage)"
+                     class="rounded-circle mb-2"
+                     style="width:90px;height:90px;object-fit:cover;border:1px solid #ddd;" />
+                <div>
+                    <label for="ProfileImage" class="btn btn-sm btn-outline-secondary">
+                        Change Photo
+                    </label>
+                    <input type="file" id="ProfileImage" name="ProfileImage"
+                           class="d-none" accept="image/*"
+                           onchange="previewImage(this)" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input name="fullName" value="@ViewBag.FullName"
+                       class="form-control" required />
+            </div>
 
             <div class="mb-3">
                 <label class="form-label">Username</label>
-                <input name="userName" value="@Model.UserName" class="form-control" required />
+                <input name="userName" value="@Model.UserName"
+                       class="form-control" required />
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Email</label>
-                <input name="email" value="@Model.Email" class="form-control" required />
+                <input name="email" value="@Model.Email"
+                       class="form-control" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    New Password
+                    <small class="text-muted">(leave blank to keep current)</small>
+                </label>
+                <input type="password" name="newPassword"
+                       class="form-control" placeholder="••••••••" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" name="confirmPassword"
+                       class="form-control" placeholder="••••••••" />
             </div>
 
             <div class="d-flex gap-2">
@@ -27,3 +75,15 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => document.getElementById('avatarPreview').src = e.target.result;
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

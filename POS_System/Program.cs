@@ -45,28 +45,35 @@ app.MapRazorPages()
    .WithStaticAssets();
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<ApplicationDbContext>();
-    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    // Seed roles and users
-    string[] roleNames = { "Admin", "Cashier" };
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-    foreach (var roleName in roleNames)
+    // Seed roles
+    foreach (var role in new[] { "Admin", "Cashier" })
     {
-        if (!await roleManager.RoleExistsAsync(roleName))
-        {
-            await roleManager.CreateAsync(new IdentityRole(roleName));
-        }
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
     }
+
+    // Seed admin user
     var adminEmail = "admin@example.com";
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
+
     if (adminUser == null)
     {
-        adminUser = new IdentityUser { UserName = adminEmail, Email = adminEmail };
-        await userManager.CreateAsync(adminUser, "Admin@123");
-        await userManager.AddToRoleAsync(adminUser, "Admin");
-        
+        var newAdmin = new POS_System.Models.AspNetUser
+        {
+            UserName = "admin",
+            Email = adminEmail,
+            EmailConfirmed = true,
+            FullName = "Administrator"
+        };
+
+        var createResult = await userManager.CreateAsync(newAdmin, "Admin@123");
+
+        if (createResult.Succeeded)
+            await userManager.AddToRoleAsync(newAdmin, "Admin");
     }
 }
-app.Run();
+
+app.Run(); app.Run();

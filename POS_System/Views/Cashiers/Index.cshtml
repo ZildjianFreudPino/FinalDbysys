@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
 @using Microsoft.AspNetCore.Identity
-@inject UserManager<IdentityUser> UserManager
+@using Microsoft.EntityFrameworkCore
+@inject POS_System.Data.ApplicationDbContext DbContext
 @{
     ViewData["Title"] = "Manage Cashiers";
 }
@@ -26,9 +27,13 @@
     <tbody>
         @foreach (var user in Model)
         {
-            var claims = await UserManager.GetClaimsAsync(user);
-            var fullName = claims.FirstOrDefault(c => c.Type == "FullName")?.Value ?? "N/A";
-            var image = claims.FirstOrDefault(c => c.Type == "ProfileImage")?.Value ?? "/images/default-avatar.png";
+            var aspUser = await DbContext.Database
+            .SqlQueryRaw<POS_System.Models.CashierInfo>(
+                                    "SELECT FullName, ProfileImage FROM AspNetUsers WHERE Id = {0}", user.Id)
+            .ToListAsync();
+
+            var fullName = aspUser.FirstOrDefault()?.FullName ?? "N/A";
+            var image = aspUser.FirstOrDefault()?.ProfileImage ?? "/images/default-avatar.png";
 
             <tr>
                 <td>

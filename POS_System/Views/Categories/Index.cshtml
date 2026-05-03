@@ -1,11 +1,10 @@
-﻿@model IEnumerable<POS_System.Models.AspNetUser>
-@using POS_System.Models
+﻿@model IEnumerable<POS_System.Models.Category>
 @{
-    ViewData["Title"] = "Manage Cashiers";
+    ViewData["Title"] = "Categories";
 }
 
-<h2>Cashiers</h2>
-<a asp-action="Create" class="btn btn-primary mb-3">+ Add Cashier</a>
+<h2>Categories</h2>
+<a asp-action="Create" class="btn btn-primary mb-3">+ Add Category</a>
 
 @if (TempData["Success"] != null)
 {
@@ -15,31 +14,21 @@
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>Photo</th>
-            <th>Full Name</th>
-            <th>Username</th>
-            <th>Email</th>
+            <th>Name</th>
+            <th>Description</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var user in Model)
+        @foreach (var category in Model)
         {
-            var image = string.IsNullOrEmpty(user.ProfileImage)
-            ? "/images/default-avatar.png"
-            : user.ProfileImage;
             <tr>
+                <td>@category.Name</td>
+                <td>@category.Description</td>
                 <td>
-                    <img src="@image" class="rounded-circle"
-                         style="width:40px;height:40px;object-fit:cover;" />
-                </td>
-                <td>@user.FullName</td>
-                <td>@user.UserName</td>
-                <td>@user.Email</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@user.Id"
+                    <a asp-action="Edit" asp-route-id="@category.Id"
                        class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@user.Id"
+                    <a asp-action="Delete" asp-route-id="@category.Id"
                        class="btn btn-sm btn-danger">Delete</a>
                 </td>
             </tr>
