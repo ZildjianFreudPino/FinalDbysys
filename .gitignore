@@ -1,0 +1,118 @@
+# Visual Studio / .NET Core
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+*/bin/
+*/obj/
+
+# Visual Studio cache and temporary files
+*.VC.db
+*.VC.VC.opendb
+*.ncb
+*.opendb
+*.log
+
+# Rider
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+.history/
+
+# NuGet
+*.nupkg
+# NuGet packages directory (uncomment if you have a packages/ folder)
+# packages/
+
+# Azure DevOps / TFS
+.tfvc/
+
+# Dotnet user-secrets
+secrets.json
+
+# Publish output
+publish/
+*/publish/
+out/
+artifacts/
+
+# IIS Express
+/.vs/Config/applicationhost.config
+/.vs/config/*.db
+
+# Runtime files
+*.pid
+*.seed
+*.pid.lock
+
+# NuGet fallback folder
+.nuget/packages/
+
+# Entity Framework
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Test results
+TestResults/
+*.trx
+
+# dotCover
+*.dotCover
+
+# Coverage results
+coverage.*
+coverage/
+*.coverage
+*.coveragexml
+
+# Package distribution
+*.vsix
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# JetBrains Rider local history
+.idea/**/localHistory/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+**/docker-compose.override.yml
+
+# OneDrive / Sync
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# Logs
+*.log
+logs/
+
+# Secret files created by tooling
+.env
+.env.*
+
+# Ignore user-specific files that may accidentally be added
+*.user
+*.userprefs
+
+# Keep project files but ignore generated caches
+*.cache
+
+# End of file
