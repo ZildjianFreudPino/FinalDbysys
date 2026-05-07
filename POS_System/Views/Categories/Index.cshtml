@@ -1,37 +1,62 @@
 ﻿@model IEnumerable<POS_System.Models.Category>
 @{
     ViewData["Title"] = "Categories";
+    var searchTerm = ViewData["Search"]?.ToString();
 }
 
 <h2>Categories</h2>
-<a asp-action="Create" class="btn btn-primary mb-3">+ Add Category</a>
 
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success">@TempData["Success"]</div>
 }
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var category in Model)
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a asp-action="Create" class="btn btn-primary">+ Add Category</a>
+    <form method="get" class="d-flex gap-2" style="min-width:300px;">
+        <input type="text"
+               name="search"
+               value="@searchTerm"
+               class="form-control"
+               placeholder="Search by name or description..." />
+        <button type="submit" class="btn btn-secondary">Search</button>
+        @if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            <tr>
-                <td>@category.Name</td>
-                <td>@category.Description</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@category.Id"
-                       class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@category.Id"
-                       class="btn btn-sm btn-danger">Delete</a>
-                </td>
-            </tr>
+            <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
         }
-    </tbody>
-</table>
+    </form>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No categories found matching "<strong>@searchTerm</strong>".
+    </div>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model)
+            {
+                <tr>
+                    <td>@category.Name</td>
+                    <td>@category.Description</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@category.Id"
+                           class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@category.Id"
+                           class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -6,7 +6,7 @@ using POS_System.Models.ViewModels;
 
 namespace POS_System.Controllers
 {
-    [Authorize(Roles = "Admin,Cashier")]
+   
     public class SalesController : Controller
     {
         private readonly string _conn;
@@ -17,6 +17,7 @@ namespace POS_System.Controllers
         }
 
         // ── POS Page ──────────────────────────────────────────────
+        [Authorize(Roles = "Cashier")]
         public IActionResult Index()
         {
             var vm = new SalesViewModel
@@ -26,8 +27,6 @@ namespace POS_System.Controllers
             };
             return View(vm);
         }
-
-        // ── Process Sale ──────────────────────────────────────────
         [HttpPost]
         public IActionResult Process([FromBody] ProcessSaleRequest req)
         {

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using POS_System.Data;
 using POS_System.Models;
+using POS_System.Models.ViewModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,10 +31,32 @@ namespace POS_System.Controllers
         }
 
         // GET: /Cashiers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search)
         {
-            var cashiers = await _userManager.GetUsersInRoleAsync("Cashier");
-            return View(cashiers);
+            var users = await _context.Database
+    .SqlQueryRaw<CashierViewModel>(
+        @"SELECT u.Id, 
+                 ISNULL(u.FullName, '') AS FullName, 
+                 ISNULL(u.UserName, '') AS UserName, 
+                 ISNULL(u.Email, '') AS Email, 
+                 ISNULL(u.ProfileImage, '/images/default-avatar.png') AS ProfileImage 
+          FROM AspNetUsers u
+          INNER JOIN AspNetUserRoles ur ON u.Id = ur.UserId
+          INNER JOIN AspNetRoles r ON ur.RoleId = r.Id
+          WHERE r.Name = 'Cashier'")
+    .ToListAsync();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                users = users.Where(u =>
+                    (u.FullName?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (u.UserName?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (u.Email?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+                ).ToList();
+            }
+
+            ViewData["Search"] = search;
+            return View(users);
         }
 
         // GET: /Cashiers/Create

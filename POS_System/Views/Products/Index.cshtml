@@ -1,49 +1,74 @@
 ﻿@model IEnumerable<POS_System.Models.Product>
 @{
     ViewData["Title"] = "Products";
+    var searchTerm = ViewData["Search"]?.ToString();
 }
 
 <h1>Products</h1>
-<p><a asp-action="Create" class="btn btn-primary">+ Add Product</a></p>
 
-<table class="table table-bordered table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Category</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a asp-action="Create" class="btn btn-primary">+ Add Product</a>
+    <form method="get" class="d-flex gap-2" style="min-width:350px;">
+        <input type="text"
+               name="search"
+               value="@searchTerm"
+               class="form-control"
+               placeholder="Search by name, description or category..." />
+        <button type="submit" class="btn btn-secondary">Search</button>
+        @if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            <tr>
-                <td>
-                    @if (!string.IsNullOrEmpty(item.ImagePath))
-                    {
-                        <img src="@item.ImagePath" alt="@item.Name" width="60" height="60"
-                             style="object-fit:cover;" class="rounded" />
-                    }
-                    else
-                    {
-                        <span class="text-muted">No image</span>
-                    }
-                </td>
-                <td>@item.Name</td>
-                <td>@item.Description</td>
-                <td>₱@item.Price.ToString("N2")</td>
-                <td>@item.Stock</td>
-                <td>@item.Category?.Name</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
-                </td>
-            </tr>
+            <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
         }
-    </tbody>
-</table>
+    </form>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No products found matching "<strong>@searchTerm</strong>".
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.ImagePath))
+                        {
+                            <img src="@item.ImagePath" alt="@item.Name" width="60" height="60"
+                                 style="object-fit:cover;" class="rounded" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">No image</span>
+                        }
+                    </td>
+                    <td>@item.Name</td>
+                    <td>@item.Description</td>
+                    <td>₱@item.Price.ToString("N2")</td>
+                    <td>@item.Stock</td>
+                    <td>@item.Category?.Name</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Edit</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

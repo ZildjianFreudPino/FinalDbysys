@@ -26,10 +26,20 @@ namespace POS_System.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search)
         {
-            var products = await _context.Products.Include(p => p.Category).ToListAsync();
-            return View(products);
+            var products = _context.Products.Include(p => p.Category).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                products = products.Where(p =>
+                    p.Name.Contains(search) ||
+                    p.Description.Contains(search) ||
+                    p.Category.Name.Contains(search));
+            }
+
+            ViewData["Search"] = search;
+            return View(await products.ToListAsync());
         }
 
         // GET: Products/Details/5
@@ -50,23 +60,19 @@ namespace POS_System.Controllers
             return View();
         }
 
-        // GET: Products/Create
-   
+        // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Description,Price,Stock,CategoryId")] Product product, IFormFile? ImageFile)
         {
-            // Remove ImagePath from ModelState so it doesn't block validation
             ModelState.Remove("ImagePath");
             ModelState.Remove("Category");
 
-            // Duplicate check
             bool isDuplicate = await _context.Products
                 .AnyAsync(p => p.Name.ToLower() == product.Name.ToLower());
             if (isDuplicate)
                 ModelState.AddModelError("Name", "A product with this name already exists.");
 
-            // Image required check
             if (ImageFile == null || ImageFile.Length == 0)
                 ModelState.AddModelError("ImageFile", "Product image is required.");
 
@@ -88,6 +94,7 @@ namespace POS_System.Controllers
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
             return View(product);
         }
+
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -105,7 +112,10 @@ namespace POS_System.Controllers
         {
             if (id != product.Id) return NotFound();
 
-            // Duplicate check excluding current record
+            // ✅ Fix: Remove these from ModelState validation
+            ModelState.Remove("ImagePath");
+            ModelState.Remove("Category");
+
             bool isDuplicate = await _context.Products
                 .AnyAsync(p => p.Name.ToLower() == product.Name.ToLower() && p.Id != product.Id);
             if (isDuplicate)
@@ -113,7 +123,6 @@ namespace POS_System.Controllers
 
             if (ModelState.IsValid)
             {
-                // Handle new image upload
                 if (ImageFile != null && ImageFile.Length > 0)
                 {
                     // Delete old image if exists
@@ -131,6 +140,14 @@ namespace POS_System.Controllers
                     using (var stream = new FileStream(filePath, FileMode.Create))
                         await ImageFile.CopyToAsync(stream);
                     product.ImagePath = "/uploads/products/" + fileName;
+                }
+                else
+                {
+                    // ✅ Fix: If no new image uploaded, keep the existing ImagePath from DB
+                    var existingProduct = await _context.Products.AsNoTracking()
+                        .FirstOrDefaultAsync(p => p.Id == product.Id);
+                    if (existingProduct != null)
+                        product.ImagePath = existingProduct.ImagePath;
                 }
 
                 try
@@ -169,7 +186,6 @@ namespace POS_System.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product != null)
             {
-                // Delete image file too
                 if (!string.IsNullOrEmpty(product.ImagePath))
                 {
                     var imgPath = Path.Combine(_env.WebRootPath, product.ImagePath.TrimStart('/'));
