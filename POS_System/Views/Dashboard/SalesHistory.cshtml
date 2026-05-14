@@ -64,7 +64,6 @@
 
             <div class="nav flex-column nav-pills gap-2">
 
-                <!-- Dashboard -->
                 <a class="nav-link text-dark d-flex align-items-center gap-3 py-3"
                    asp-controller="Dashboard"
                    asp-action="Index">
@@ -77,96 +76,59 @@
 
                 </a>
 
-                <!-- POS (Cashier Only) -->
-                @if (!isAdmin)
-                {
-                    <a class="nav-link text-dark d-flex align-items-center gap-3 py-3"
-                       asp-controller="Sales"
-                       asp-action="Index">
+                <a class="nav-link active bg-warning text-dark fw-bold d-flex align-items-center gap-3 py-3"
+                   asp-controller="Dashboard"
+                   asp-action="SalesHistory">
 
-                        <span class="material-symbols-outlined">
-                            point_of_sale
-                        </span>
+                    <span class="material-symbols-outlined">
+                        history
+                    </span>
 
-                        <span>POS</span>
+                    <span>Sales History</span>
 
-                    </a>
-                }
+                </a>
 
-                <!-- History -->
-                @if (isAdmin)
-                {
-                    <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center gap-2"
-                           asp-controller="Dashboard"
-                           asp-action="SalesHistory">
+                <a class="nav-link text-dark d-flex align-items-center gap-3 py-3"
+                   asp-controller="Categories"
+                   asp-action="Index">
 
-                            <span class="material-symbols-outlined">history</span>
-                            <span>Sales History</span>
+                    <span class="material-symbols-outlined">
+                        category
+                    </span>
 
-                        </a>
-                    </li>
-                }
-                else
-                {
-                    <a class="nav-link active bg-warning text-dark fw-bold d-flex align-items-center gap-3 py-3"
-                       asp-controller="Sales"
-                       asp-action="History">
+                    <span>Categories</span>
 
-                        <span class="material-symbols-outlined">
-                            history
-                        </span>
+                </a>
 
-                        <span>History</span>
+                <a class="nav-link text-dark d-flex align-items-center gap-3 py-3"
+                   asp-controller="Products"
+                   asp-action="Index">
 
-                    </a>
-                }
+                    <span class="material-symbols-outlined">
+                        inventory_2
+                    </span>
 
-                <!-- Admin Menus -->
-                @if (isAdmin)
-                {
-                    <a class="nav-link text-dark d-flex align-items-center gap-3 py-3"
-                       asp-controller="Categories"
-                       asp-action="Index">
+                    <span>Products</span>
 
-                        <span class="material-symbols-outlined">
-                            category
-                        </span>
+                </a>
 
-                        <span>Categories</span>
+                <a class="nav-link text-dark d-flex align-items-center gap-3 py-3"
+                   asp-controller="Cashiers"
+                   asp-action="Index">
 
-                    </a>
+                    <span class="material-symbols-outlined">
+                        groups
+                    </span>
 
-                    <a class="nav-link text-dark d-flex align-items-center gap-3 py-3"
-                       asp-controller="Products"
-                       asp-action="Index">
+                    <span>Cashiers</span>
 
-                        <span class="material-symbols-outlined">
-                            inventory_2
-                        </span>
-
-                        <span>Products</span>
-
-                    </a>
-
-                    <a class="nav-link text-dark d-flex align-items-center gap-3 py-3"
-                       asp-controller="Cashiers"
-                       asp-action="Index">
-
-                        <span class="material-symbols-outlined">
-                            groups
-                        </span>
-
-                        <span>Cashiers</span>
-
-                    </a>
-                }
+                </a>
 
             </div>
 
         </nav>
 
-        <div class="p-3 border-top">
+        <div class="p-3 border-top mt-auto">
 
             <div class="d-flex align-items-center gap-3 px-2 py-2">
 
@@ -186,7 +148,7 @@
                     </span>
 
                     <span class="text-muted" style="font-size:0.75rem;">
-                        @(User.IsInRole("Admin") ? "Administrator" : "Cashier")
+                        Administrator
                     </span>
 
                 </div>
@@ -209,19 +171,36 @@
                     Sales History
                 </h2>
 
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center gap-2">
 
-                    <a asp-controller="Sales"
+                    <a asp-controller="Dashboard"
                        asp-action="Index"
-                       class="btn btn-success d-flex align-items-center gap-2 px-4 py-2">
+                       class="btn btn-warning d-flex align-items-center gap-2 px-4 py-2 fw-bold">
 
                         <span class="material-symbols-outlined">
-                            shopping_cart
+                            dashboard
                         </span>
 
-                        Go to POS
+                        Dashboard
 
                     </a>
+
+                    <form asp-area="Identity"
+                          asp-page="/Account/Logout"
+                          method="post">
+
+                        <button type="submit"
+                                class="btn btn-outline-danger d-flex align-items-center gap-2 px-4 py-2">
+
+                            <span class="material-symbols-outlined">
+                                logout
+                            </span>
+
+                            Logout
+
+                        </button>
+
+                    </form>
 
                 </div>
 
@@ -368,83 +347,83 @@
                                 {
                                     foreach (var s in Model)
                                     {
-                                    <tr>
+                                        <tr>
 
-                                        <td class="p-3">
-                                            <span class="text-primary fw-bold">
-                                                INV-@s.SaleId
-                                            </span>
-                                        </td>
+                                            <td class="p-3">
+                                                <span class="text-primary fw-bold">
+                                                    INV-@s.SaleId
+                                                </span>
+                                            </td>
 
-                                        <td class="p-3 small">
-                                            @s.SaleDate.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt")
-                                        </td>
+                                            <td class="p-3 small">
+                                                @s.SaleDate.ToLocalTime().ToString("MM/dd/yyyy hh:mm tt")
+                                            </td>
 
-                                        <td class="p-3 small text-end">
-                                            ₱@s.SubTotal.ToString("N2")
-                                        </td>
+                                            <td class="p-3 small text-end">
+                                                ₱@s.SubTotal.ToString("N2")
+                                            </td>
 
-                                        <td class="p-3 small text-end text-danger">
-                                            -₱@s.DiscountAmt.ToString("N2")
-                                        </td>
+                                            <td class="p-3 small text-end text-danger">
+                                                -₱@s.DiscountAmt.ToString("N2")
+                                            </td>
 
-                                        <td class="p-3 small text-end fw-bold">
-                                            ₱@s.TotalAmount.ToString("N2")
-                                        </td>
+                                            <td class="p-3 small text-end fw-bold">
+                                                ₱@s.TotalAmount.ToString("N2")
+                                            </td>
 
-                                        <td class="p-3">
+                                            <td class="p-3">
 
-                                            <span class="small d-flex align-items-center gap-1">
+                                                <span class="small d-flex align-items-center gap-1">
 
-                                                <span class="material-symbols-outlined fs-6">
-                                                    payments
+                                                    <span class="material-symbols-outlined fs-6">
+                                                        payments
+                                                    </span>
+
+                                                    @s.PaymentMode
+
                                                 </span>
 
-                                                @s.PaymentMode
+                                            </td>
 
-                                            </span>
+                                            <td class="p-3">
 
-                                        </td>
+                                                <span class="badge rounded-pill @(s.SaleStatus == "Completed"
+                                                                          ? "bg-success-subtle text-success"
+                                                                          : "bg-secondary") px-3 py-2">
 
-                                        <td class="p-3">
+                                                    @s.SaleStatus
 
-                                            <span class="badge rounded-pill @(s.SaleStatus == "Completed"
-                                                                                                  ? "bg-success-subtle text-success"
-                                                                                                  : "bg-secondary") px-3 py-2">
-
-                                                @s.SaleStatus
-
-                                            </span>
-
-                                        </td>
-
-                                        <td class="p-3 text-center">
-
-                                            <button class="btn btn-sm btn-outline-primary border-0"
-                                                    onclick="viewDetail(@s.SaleId)">
-
-                                                <span class="material-symbols-outlined">
-                                                    visibility
                                                 </span>
 
-                                            </button>
+                                            </td>
 
-                                            @if (isAdmin && s.SaleStatus == "Completed")
-                                            {
-                                                <button class="btn btn-sm btn-outline-danger border-0"
-                                                        onclick="voidSale(@s.SaleId)">
+                                            <td class="p-3 text-center">
+
+                                                <button class="btn btn-sm btn-outline-primary border-0"
+                                                        onclick="viewDetail(@s.SaleId)">
 
                                                     <span class="material-symbols-outlined">
-                                                        delete
+                                                        visibility
                                                     </span>
 
                                                 </button>
-                                            }
 
-                                        </td>
+                                                @if (isAdmin && s.SaleStatus == "Completed")
+                                                {
+                                                    <button class="btn btn-sm btn-outline-danger border-0"
+                                                            onclick="voidSale(@s.SaleId)">
 
-                                    </tr>
-                                }
+                                                        <span class="material-symbols-outlined">
+                                                            delete
+                                                        </span>
+
+                                                    </button>
+                                                }
+
+                                            </td>
+
+                                        </tr>
+                                    }
                                 }
 
                             </tbody>

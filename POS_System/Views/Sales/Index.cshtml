@@ -1,32 +1,161 @@
 ﻿@model POS_System.Models.ViewModels.SalesViewModel
 @{
+
+    Layout = null;
+
     ViewData["Title"] = "Cashier POS";
     
 }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="~/css/pos.css" />
 
-<div class="d-flex gap-3" style="height:calc(100vh - 120px);">
 
-    <!-- ── LEFT: Product Grid ── -->
-    <div class="d-flex flex-column" style="flex:1; min-width:0;">
-        <div class="input-group mb-2">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input id="searchInput" type="text" class="form-control" placeholder="Search products...">
+<header class="top-header d-flex align-items-center justify-content-between px-4">
+
+    <h1 class="logo-text mb-0">
+        EASYPI POS
+    </h1>
+
+    <div class="d-flex align-items-center gap-3">
+
+        <span class="fw-medium">
+            @User.Identity?.Name
+        </span>
+
+        <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center"
+             style="width:44px;height:44px;">
+
+            <span class="fw-bold text-primary">
+                @User.Identity?.Name?.Substring(0, 1).ToUpper()
+            </span>
+
         </div>
-        <div id="productGrid" class="row g-2 overflow-auto flex-grow-1 align-content-start">
+
+    </div>
+
+</header>
+<div class="d-flex">
+    <aside class="sidebar d-none d-md-flex flex-column">
+
+
+    <!-- Navigation -->
+    <nav class="nav flex-column py-3 flex-grow-1">
+
+        <a class="nav-link"
+           asp-controller="Dashboard"
+           asp-action="Index">
+
+            <span class="material-symbols-outlined">
+                dashboard
+            </span>
+
+            <span>Dashboard</span>
+
+        </a>
+
+        <a class="nav-link active bg-warning text-dark fw-bold d-flex align-items-center gap-3 py-3 rounded-3"
+           asp-controller="Sales"
+           asp-action="Index">
+
+            <span class="material-symbols-outlined">
+                point_of_sale
+            </span>
+
+            <span>POS</span>
+
+        </a>
+
+        <a class="nav-link"
+           asp-controller="Sales"
+           asp-action="History">
+
+            <span class="material-symbols-outlined">
+                history
+            </span>
+
+            <span>History</span>
+
+        </a>
+
+    </nav>
+
+    <!-- Bottom User -->
+<div class="border-top p-4 mt-auto">
+
+    <div class="d-flex align-items-center gap-3">
+
+        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold"
+             style="width:44px; height:44px;">
+
+            @User.Identity?.Name?.Substring(0, 1).ToUpper()
+
+        </div>
+
+        <div>
+
+            <div class="fw-bold">
+                @User.Identity?.Name
+            </div>
+
+            <div class="text-muted small">
+                Cashier
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</aside>
+
+    <!-- MAIN -->
+    <main class="flex-grow-1 p-4">
+
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+
+            <div class="d-flex h-100">
+    <!-- ── LEFT: Product Grid ── -->
+            <section class="col-lg-9">
+
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <div class="row mb-4">
+            <div class="col-12 col-lg-6">
+
+                <div class="search-wrapper">
+
+                    <span class="material-symbols-outlined">
+                        search
+                    </span>
+
+                    <input id="searchInput"
+                           type="text"
+                           class="form-control form-control-lg border-secondary-subtle"
+                           placeholder="Search products...">
+
+                </div>
+
+            </div>
+        </div>
+        <div id="productGrid" class="row g-2">
             @foreach (var p in Model.Products)
             {
                 <div class="col-6 col-md-4 col-lg-3 product-card-col"
                      data-name="@p.Name.ToLower()">
-                    <div class="card h-100 shadow-sm product-card"
+                    <div class="card h-100 product-card"
                          style="cursor:pointer;"
                          data-id="@p.Id"
                          data-name="@p.Name"
                          data-price="@p.Price"
                          data-stock="@p.Stock">
+
+                        <div class="product-img-wrapper">
                         @if (!string.IsNullOrEmpty(p.ImagePath))
                         {
                             <img src="@p.ImagePath" class="card-img-top"
-                                 style="height:90px;object-fit:cover;" alt="@p.Name">
+                                 style="height:120px;object-fit:cover;" alt="@p.Name">
                         }
                         else
                         {
@@ -35,6 +164,7 @@
                                 <i class="bi bi-box-seam text-white fs-2"></i>
                             </div>
                         }
+                        </div>
                         <div class="card-body p-2">
                             <div class="fw-semibold small text-truncate">@p.Name</div>
                             <div class="text-success fw-bold">₱@p.Price.ToString("N2")</div>
@@ -44,12 +174,14 @@
                 </div>
             }
         </div>
-    </div>
+        </div>
+    </section>
 
     <!-- ── RIGHT: Cart ── -->
-    <div class="d-flex flex-column bg-white border rounded shadow-sm p-3"
-         style="width:360px; min-width:360px;">
-        <h5 class="mb-2"><i class="bi bi-cart3"></i> Cart</h5>
+            <aside class="col-lg-3">
+
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h5 class="mb-2"><i class="bi bi-cart3"></i> Cart</h5>
 
         <div id="cartItems" class="flex-grow-1 overflow-auto mb-2" style="max-height:340px;">
             <p class="text-muted text-center mt-4" id="emptyCart">No items yet.</p>
@@ -91,35 +223,62 @@
             Change: <strong id="changeDisplay">₱0.00</strong>
         </div>
 
-        <button id="btnCharge" class="btn btn-success w-100 fw-bold">
-            <i class="bi bi-lightning-charge-fill"></i> CHARGE
+                    <button id="btnCharge" class="btn btn-success w-100 py-3 fw-bold rounded-3">
+                        <i class="bi bi-lightning-charge-fill"></i> CHARGE
         </button>
-        <button id="btnClear" class="btn btn-outline-danger btn-sm w-100 mt-1">
-            <i class="bi bi-x-circle"></i> Clear Cart
+                    <button id="btnClear" class="btn btn-outline-danger w-100 mt-2 py-2 rounded-3">
+                        <i class="bi bi-x-circle"></i> Clear Cart
         </button>
-    </div>
-</div>
+                    </div>
+                </aside>
 
-<!-- ── Receipt Modal ── -->
-<div class="modal fade" id="receiptModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="bi bi-receipt"></i> Sale Complete</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="receiptBody" style="font-family:monospace;"></div>
-            <div class="modal-footer">
-                <button class="btn btn-outline-secondary" onclick="window.print()">
-                    <i class="bi bi-printer"></i> Print
-                </button>
-                <button class="btn btn-success" data-bs-dismiss="modal">New Sale</button>
+        </div>
+
+    </main>
+
+    <!-- ── Receipt Modal ── -->
+    <div class="modal fade" id="receiptModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-receipt"></i> Sale Complete
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body"
+                     id="receiptBody"
+                     style="font-family:monospace;">
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-outline-secondary"
+                            onclick="window.print()">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+
+                    <button class="btn btn-success"
+                            data-bs-dismiss="modal">
+                        New Sale
+                    </button>
+
+                </div>
+
             </div>
         </div>
     </div>
-</div>
 
-@section Scripts {
+</div>\
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // ── Cart State ──────────────────────────────────────────────
         let cart = {};
@@ -316,6 +475,7 @@
                 </div>
                 <div class="d-flex justify-content-between mt-1">
                     <span>Payment (${r.paymentMode})</span><strong>₱${r.amountTendered.toFixed(2)}</strong>
+                    <span>Payment (${r.paymentMode})</span><strong>₱${r.amountTendered.toFixed(2)}</strong>
                 </div>
                 ${r.changeGiven > 0
                     ? `<div class="d-flex justify-content-between text-primary">
@@ -331,4 +491,3 @@
         updateTotals();
         paymentMode.dispatchEvent(new Event('change'));
     </script>
-}

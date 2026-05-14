@@ -10,8 +10,11 @@ namespace POS_System.Data
             : base(options)
         {
         }
-        public virtual DbSet<Category> Categories { get; set; }
 
-        public virtual DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
+
+        public DbSet<Product> Products { get; set; }
+
+        public DbSet<Sale> Sales { get; set; }
     }
 }

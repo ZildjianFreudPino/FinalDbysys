@@ -6,7 +6,8 @@ using POS_System.Models.ViewModels;
 
 namespace POS_System.Controllers
 {
-   
+
+    [Authorize(Roles = "Cashier")]
     public class SalesController : Controller
     {
         private readonly string _conn;

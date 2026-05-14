@@ -31,7 +31,7 @@ else
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -76,4 +76,4 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.Run(); app.Run();
+app.Run();
