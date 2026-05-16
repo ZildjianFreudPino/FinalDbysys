@@ -184,23 +184,47 @@ namespace POS_System.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var product = await _context.Products.FindAsync(id);
-            if (product != null)
+
+            if (product == null)
             {
+                return NotFound();
+            }
+
+            try
+            {
+                // DELETE IMAGE
                 if (!string.IsNullOrEmpty(product.ImagePath))
                 {
-                    var imgPath = Path.Combine(_env.WebRootPath, product.ImagePath.TrimStart('/'));
+                    var imgPath = Path.Combine(
+                        _env.WebRootPath,
+                        product.ImagePath.TrimStart('/')
+                    );
+
                     if (System.IO.File.Exists(imgPath))
+                    {
                         System.IO.File.Delete(imgPath);
+                    }
                 }
+
                 _context.Products.Remove(product);
+
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Product deleted successfully.";
             }
-            await _context.SaveChangesAsync();
+            catch
+            {
+                TempData["Error"] =
+                    "Cannot delete product because it is already used in sales history.";
+            }
+
             return RedirectToAction(nameof(Index));
         }
-
         private bool ProductExists(int id)
         {
             return _context.Products.Any(e => e.Id == id);
         }
     }
+
+
 }

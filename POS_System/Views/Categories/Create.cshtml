@@ -1,43 +1,144 @@
 ﻿@model POS_System.Models.Category
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Category";
 }
 
-<h1>Create</h1>
+<style>
 
-<h4>Category</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
+    body {
+        background: #f5f6fa;
+        font-family: 'Inter', sans-serif;
+    }
 
-          
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+    .create-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 2px 10px rgba(0,0,0,.05);
+        max-width: 700px;
+    }
+
+    .page-title {
+        font-size: 42px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .page-subtitle {
+        color: #6b7280;
+        font-size: 17px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        height: 55px;
+        border-radius: 14px;
+        border: 1px solid #dbe0e6;
+        padding-left: 18px;
+        font-size: 16px;
+    }
+
+    textarea.form-control {
+        height: 120px;
+        padding-top: 15px;
+        resize: none;
+    }
+
+    .btn-save {
+        background: #16a34a;
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 14px 28px;
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+        .btn-save:hover {
+            background: #15803d;
+            color: white;
+        }
+
+    .btn-back {
+        border-radius: 14px;
+        padding: 14px 28px;
+        font-weight: 600;
+    }
+
+    .validation-summary-errors {
+        color: #dc2626;
+        margin-bottom: 20px;
+    }
+
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<div class="create-card">
+
+    <div class="mb-4">
+
+        <h1 class="page-title mb-1">
+            Add Category
+        </h1>
+
+        <p class="page-subtitle mb-0">
+            Create a new product category for your inventory.
+        </p>
+
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <form asp-action="Create">
+
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+        <div class="mb-4">
+
+            <label asp-for="Name" class="form-label"></label>
+
+            <input asp-for="Name" class="form-control"
+                   placeholder="Enter category name..." />
+
+            <span asp-validation-for="Name" class="text-danger"></span>
+
+        </div>
+
+        <div class="mb-4">
+
+            <label asp-for="Description" class="form-label"></label>
+
+            <textarea asp-for="Description"
+                      class="form-control"
+                      placeholder="Enter category description..."></textarea>
+
+            <span asp-validation-for="Description" class="text-danger"></span>
+
+        </div>
+
+        <div class="d-flex gap-3">
+
+            <button type="submit" class="btn btn-save">
+                Create Category
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary btn-back">
+                Back
+            </a>
+
+        </div>
+
+    </form>
+
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 }
-    

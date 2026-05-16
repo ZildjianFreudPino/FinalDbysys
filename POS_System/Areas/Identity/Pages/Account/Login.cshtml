@@ -6,125 +6,160 @@
 
 <style>
     body {
-        background: #0f172a;
-        color: white;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at top left, rgba(245,158,11,0.18), transparent 30%), radial-gradient(circle at bottom right, rgba(251,191,36,0.15), transparent 30%), linear-gradient(135deg, #fffdf7, #f8fafc);
+        font-family: 'Inter', sans-serif;
+        overflow: hidden;
+        color: #111827;
     }
-
-
+    /* CARD */
     .login-box {
-        background: #111827;
-        padding: 50px;
-        border-radius: 30px;
-        box-shadow: 0 0 40px rgba(0,0,0,0.45);
-        max-width: 550px;
+        background: rgba(255,255,255,0.75);
+        backdrop-filter: blur(14px);
+        padding: 40px;
+        border-radius: 35px;
+        border: 1px solid rgba(255,255,255,0.7);
+        box-shadow: 0 20px 45px rgba(0,0,0,0.08);
+        max-width: 500px;
+        animation: fadeIn 0.7s ease;
+        backdrop-filter: blur(18px);
+        position: relative;
+        overflow: hidden;
+        width: 100%;
     }
 
-    h1, h2 {
+    /* EASYPI TITLE */
+    .easy-title {
+        font-size: 72px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* WELCOME */
+    .welcome-title {
         color: #f59e0b;
-        font-weight: bold;
+        font-weight: 700;
+        font-size: 42px;
     }
 
+    /* SUBTITLE */
+    .subtitle {
+        color: #64748b;
+        font-size: 22px;
+    }
+
+    /* INPUTS */
     .form-control {
-        background-color: #1f2937 !important;
-        border: 1px solid #374151;
-        color: white !important;
-        border-radius: 12px;
-        padding: 15px;
+        background-color: #f8fafc !important;
+        border: 1px solid #e5e7eb;
+        color: #111827 !important;
+        border-radius: 18px;
+        padding: 18px;
+        font-size: 18px;
+        transition: 0.2s ease;
+        height: 56px;
     }
 
         .form-control:focus {
-            background-color: #1f2937 !important;
-            color: white !important;
+            background-color: white !important;
+            color: #111827 !important;
             border-color: #f59e0b;
-            box-shadow: none;
+            box-shadow: 0 0 0 4px rgba(245,158,11,0.12);
         }
 
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus,
-    textarea:-webkit-autofill,
-    select:-webkit-autofill {
-        -webkit-text-fill-color: white;
-        -webkit-box-shadow: 0 0 0px 1000px #1f2937 inset;
-        transition: background-color 5000s ease-in-out 0s;
-
-    }
-
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover,
-        input:-webkit-autofill:focus,
-        input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
-            -webkit-text-fill-color: white !important;
-            caret-color: white !important;
-            border: 1px solid #f59e0b !important;
-            transition: background-color 9999s ease-in-out 0s;
-        }
-
+    /* BUTTON */
     .btn-login {
-        background: #f59e0b;
+        background: linear-gradient(90deg, #f59e0b, #fbbf24);
         border: none;
         color: black;
-        font-weight: bold;
-        border-radius: 12px;
-        padding: 12px;
+        font-weight: 800;
+        border-radius: 18px;
+        padding: 16px;
+        font-size: 20px;
+        transition: 0.25s ease;
+        box-shadow: 0 12px 25px rgba(245,158,11,0.18);
+        height: 56px;
     }
 
         .btn-login:hover {
-            background: #fbbf24;
+            transform: translateY(-3px);
+            box-shadow: 0 18px 35px rgba(245,158,11,0.28);
         }
 
+    /* LINKS */
     a {
         color: #f59e0b;
+        text-decoration: none;
     }
 
-    .form-floating > .form-control {
-        height: 60px !important;
-        min-height: 60px !important;
-        padding: 1.625rem 0.75rem 0.625rem !important;
-        background-color: #1f2937 !important;
-        color: white !important;
-        border: 1px solid #374151;
-        border-radius: 15px;
+        a:hover {
+            color: #d97706;
+        }
+
+    /* BACKGROUND GLOW */
+    .circle1,
+    .circle2 {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(100px);
+        z-index: -1;
     }
 
-    .form-floating > label {
-        color: #9ca3af !important;
-        background: transparent !important;
+    .circle1 {
+        width: 350px;
+        height: 350px;
+        background: rgba(245,158,11,0.12);
+        top: -80px;
+        left: -80px;
     }
 
-    .form-floating > .form-control:focus {
-        background-color: #1f2937 !important;
-        color: white !important;
-        border-color: #f59e0b;
-        box-shadow: none;
+    .circle2 {
+        width: 300px;
+        height: 300px;
+        background: rgba(251,191,36,0.1);
+        bottom: -80px;
+        right: -80px;
     }
 
-    .form-floating > .form-control:-webkit-autofill {
-        -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
-        -webkit-text-fill-color: white !important;
-    }
 
-    .form-floating > label::after {
-        background-color: transparent !important;
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
+   
 </style>
+<div class="circle1"></div>
+<div class="circle2"></div>
 <h1>@ViewData["Title"]</h1>
-<div class="row justify-content-center align-items-center vh-100">
+<div class="row justify-content-center align-items-center min-vh-100 py-4">
     <div class="text-center mb-4">
-        <h1 style="color:#f59e0b; font-size:70px; font-weight:bold;">
+        <h1 class="easy-title">
             EASYPI
-        </h1>
+            </h1>
     </div>
     <div class="col-md-5 login-box">
         <section>
             <form id="account" method="post">
-                <h1 class="text-center mb-4">Welcome Back</h1>
-
-                <p class="text-center text-light mb-4">
+                <h1 class="text-center mb-4 welcome-title">
+                    Welcome Back
+                </h1>
+                <p class="text-center subtitle mb-4">
                     Login to continue to EASYPI
                 </p>
-                <hr />
+                <hr class="my-4 opacity-25" />                
                 <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
                 <div class="form-floating mb-3">

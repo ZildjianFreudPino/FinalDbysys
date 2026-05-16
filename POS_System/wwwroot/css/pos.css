@@ -20,7 +20,7 @@ body {
 /* MAIN */
 main {
     background: #f1f5f9;
-    padding: 24px;
+    padding: 16px;
 }
 
 /* GLOBAL CARD */
@@ -32,7 +32,7 @@ main {
 
 /* SIDEBAR */
 .sidebar {
-    width: 320px;
+    width: 310px;
     min-height: 100vh;
     background: white;
     border-right: 1px solid #e2e8f0;
@@ -41,13 +41,13 @@ main {
 .logo-text {
     color: var(--brand-yellow);
     font-weight: 700;
-    font-size: 28px;
+    font-size: 24px;
 }
 
 /* NAVIGATION */
 .nav-link {
     color: #64748b;
-    padding: 12px 18px;
+    padding: 19px 23px;
     border-radius: 12px;
     margin: 4px 12px;
     font-weight: 500;
@@ -73,7 +73,7 @@ main {
     background: rgba(255,255,255,.9);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid #e2e8f0;
-    height: 80px;
+    height: 78px;
 }
 
 /* BUTTONS */
@@ -160,4 +160,41 @@ main {
         height: 54px;
         border: 1px solid #cbd5e1;
     }
+/* REMOVE PAGE SCROLL */
+body {
+    overflow: hidden;
+}
+
+/* FIX MAIN LAYOUT */
+.main-content {
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* SIDEBAR FIX */
+.sidebar {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ACCOUNT BOTTOM LEFT */
+.account-section {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: calc(100% - 40px);
+}
+
+/* CONTENT AREA */
+.content-wrapper {
+    height: calc(100vh - 80px);
+    overflow: hidden;
+}
+
+/* PRODUCT AREA ONLY SCROLLS */
+.products-section {
+    overflow-y: auto;
+    height: calc(100vh - 140px);
+}
 

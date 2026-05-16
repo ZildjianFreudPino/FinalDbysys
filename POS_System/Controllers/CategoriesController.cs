@@ -157,12 +157,28 @@ namespace POS_System.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var category = await _context.Categories.FindAsync(id);
-            if (category != null)
+
+            if (category == null)
             {
-                _context.Categories.Remove(category);
+                return NotFound();
             }
 
+            // CHECK IF CATEGORY IS USED BY PRODUCTS
+            bool hasProducts = await _context.Products
+                .AnyAsync(p => p.CategoryId == id);
+
+            if (hasProducts)
+            {
+                TempData["Error"] = "Cannot delete category because products are using it.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            _context.Categories.Remove(category);
+
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Category deleted successfully.";
+
             return RedirectToAction(nameof(Index));
         }
 

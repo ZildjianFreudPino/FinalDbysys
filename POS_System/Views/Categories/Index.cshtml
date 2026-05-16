@@ -1,62 +1,329 @@
 ﻿@model IEnumerable<POS_System.Models.Category>
 @{
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Categories";
     var searchTerm = ViewData["Search"]?.ToString();
 }
+<style>
+    html, body {
+        height: 100%;
+        overflow: hidden;
+        font-family: 'Inter', sans-serif;
+        background-color: #f8f9fa;
+    }
 
-<h2>Categories</h2>
+    main {
+        height: 100vh;
+        overflow: hidden;
+    }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
+    .container-fluid {
+        height: calc(100vh - 90px);
+        overflow: hidden;
+        max-width: 100%;
+    }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <a asp-action="Create" class="btn btn-primary">+ Add Category</a>
-    <form method="get" class="d-flex gap-2" style="min-width:300px;">
-        <input type="text"
-               name="search"
-               value="@searchTerm"
-               class="form-control"
-               placeholder="Search by name or description..." />
-        <button type="submit" class="btn btn-secondary">Search</button>
-        @if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+    .material-symbols-outlined {
+        vertical-align: middle;
+        font-size: 20px;
+    }
+
+    .card {
+        border-radius: 20px !important;
+        border: none !important;
+        overflow: hidden;
+    }
+
+    .table thead th {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #6c757d;
+        font-weight: 700;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+    }
+
+    .table td,
+    .table th {
+        padding-top: 1.25rem;
+        padding-bottom: 1.25rem;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .btn {
+        border-radius: 12px;
+    }
+
+    .btn-success {
+        background-color: #198754;
+        border: none;
+    }
+
+    .btn-primary {
+        border: none;
+    }
+
+    .btn-danger {
+        border: none;
+    }
+
+    .shadow-sm {
+        box-shadow: 0 2px 10px rgba(0,0,0,.05) !important;
+    }
+
+    /* ONLY THIS SCROLLS */
+    .categories-scroll {
+        height: 500px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .search-wrapper {
+        position: relative;
+    }
+
+        .search-wrapper .material-symbols-outlined {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
         }
-    </form>
-</div>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        No categories found matching "<strong>@searchTerm</strong>".
+        .search-wrapper .form-control {
+            padding-left: 45px;
+            height: 44px;
+            border-radius: 12px;
+        }
+
+    .refresh-btn {
+        height: 44px;
+        width: 56px;
+        border-radius: 12px;
+    }
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+<div class="container-fluid px-4 pb-4" style="margin-top:-20px;">
+    <!-- Title -->
+    <div class="row align-items-center mb-4">
+
+        <div class="col">
+
+            <h2 class="h3 fw-bold mb-0">
+                Categories
+            </h2>
+
+            <p class="text-secondary small mb-0">
+                Manage and organize your product catalog.
+            </p>
+
+        </div>
+
+        <div class="col-auto">
+
+            <a asp-action="Create"
+               class="btn btn-success fw-semibold d-flex align-items-center gap-2 shadow-sm">
+
+                <span class="material-symbols-outlined">
+                    add
+                </span>
+
+                Add Category
+
+            </a>
+
+        </div>
+
     </div>
-}
-else
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var category in Model)
-            {
-                <tr>
-                    <td>@category.Name</td>
-                    <td>@category.Description</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@category.Id"
-                           class="btn btn-sm btn-warning">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@category.Id"
-                           class="btn btn-sm btn-danger">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+
+    <!-- Success -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success rounded-4 border-0 shadow-sm">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger rounded-4 border-0 shadow-sm">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- Main Card -->
+    <div class="card border-light shadow-sm">
+
+        <!-- Search -->
+        <div class="card-header bg-white py-3 border-bottom-0">
+
+            <div class="row g-3 justify-content-between">
+
+                <div class="col-md-6">
+
+                    <div class="d-flex gap-2 align-items-center">
+
+                        <form method="get" class="flex-grow-1">
+
+                            <div class="search-wrapper">
+                                <span class="material-symbols-outlined">search</span>
+
+                                <input type="text"
+                                       name="search"
+                                       value="@searchTerm"
+                                       class="form-control"
+                                       placeholder="Search categories..." />
+                            </div>
+
+                        </form>
+
+                        <button type="button"
+                                class="btn btn-light border refresh-btn"
+                                onclick="location.href='@Url.Action("Index")'">
+
+                            <span class="material-symbols-outlined">
+                                refresh
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="col-auto d-flex align-items-center gap-2">
+
+                    <label class="text-uppercase text-secondary fw-bold small mb-0">
+                        Categories
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive categories-scroll">
+            <table class="table table-hover mb-0 align-middle">
+
+                <thead class="bg-light">
+
+                    <tr>
+
+                        <th class="px-4 py-3 text-uppercase text-secondary small fw-bold">
+                            Category Name
+                        </th>
+
+                        <th class="px-4 py-3 text-uppercase text-secondary small fw-bold">
+                            Description
+                        </th>
+
+                        <th class="px-4 py-3 text-uppercase text-secondary small fw-bold text-center">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody class="border-top-0">
+
+                    @if (!Model.Any())
+                    {
+                        <tr>
+
+                            <td colspan="3" class="text-center py-5 text-muted">
+                                No categories found.
+                            </td>
+
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var category in Model)
+                        {
+                            <tr>
+
+                                <td class="px-4 py-3">
+
+                                    <span class="fw-bold text-uppercase">
+                                        @category.Name
+                                    </span>
+
+                                </td>
+
+                                <td class="px-4 py-3 text-secondary">
+                                    @category.Description
+                                </td>
+
+                                <td class="px-4 py-3">
+
+                                    <div class="d-flex justify-content-center gap-2">
+
+                                        <a asp-action="Edit"
+                                           asp-route-id="@category.Id"
+                                           class="btn btn-primary btn-sm p-1 d-flex align-items-center shadow-sm">
+
+                                            <span class="material-symbols-outlined fs-6">
+                                                edit
+                                            </span>
+
+                                        </a>
+
+                                        <a asp-action="Delete"
+                                           asp-route-id="@category.Id"
+                                           class="btn btn-danger btn-sm p-1 d-flex align-items-center shadow-sm">
+
+                                            <span class="material-symbols-outlined fs-6">
+                                                delete
+                                            </span>
+
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="card-footer bg-white py-3">
+
+            <div class="row align-items-center">
+
+                <div class="col">
+
+                    <p class="small text-secondary mb-0">
+                        Total Categories:
+                        <span class="fw-bold">@Model.Count()</span>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
